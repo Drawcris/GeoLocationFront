@@ -4,28 +4,38 @@ import { services } from "@tomtom-international/web-sdk-services";
 import axios from "axios";
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
 import "./App.css";
+import Search from "./components/Search";
 
 const API_KEY = "A7x2Co2slX6ap1HDQbdUUcG3rJyKYaRA";
-const WARSAW = [21.0122, 52.2297];
+const Zywiec = [19.19243, 49.68529];
 
 function App() {
   const mapElement = useRef();
   const [map, setMap] = useState(null);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState([]);
   const [markers, setMarkers] = useState([]);
   const [apiAddresses, setApiAddresses] = useState([]);
   const [routeLayer, setRouteLayer] = useState(null);
+  const [newAddress, setNewAddress] = useState("");
+  const [newCity, setNewCity] = useState("");
+  const [newZipCode, setNewZipCode] = useState("");
+
+  const fetchAddresses = async () => {
+    try {
+      const response = await axios.get("https://localhost:7213/api/Adresses");
+      setApiAddresses(response.data);
+    } catch (error) {
+      console.error("Error fetching addresses from API:", error);
+    }
+  };
 
   useEffect(() => {
     const initializeMap = () => {
       const mapInstance = tt.map({
         key: API_KEY,
         container: mapElement.current,
-        center: WARSAW,
+        center: Zywiec,
         zoom: 12,
       });
-
       setMap(mapInstance);
     };
 
@@ -39,122 +49,43 @@ function App() {
   }, []);
 
   useEffect(() => {
-    // Pobieranie adresów z API po załadowaniu komponentu
-    axios.get("https://localhost:7213/api/Adresses")
-      .then((response) => {
-        setApiAddresses(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching addresses from API:", error);
-      });
+    fetchAddresses();
   }, []);
 
-  const handleSearch = () => {
-    if (!searchQuery) return;
-
-    services
-      .fuzzySearch({
-        key: API_KEY,
-        query: searchQuery,
-      })
-      .then((response) => {
-        const results = response.results;
-        setSearchResults(results);
-
-        markers.forEach((marker) => marker.remove());
-        setMarkers([]);
-
-        const newMarkers = results.map((result) => {
-          const marker = new tt.Marker().setLngLat(result.position).addTo(map);
-
-          const popup = new tt.Popup({ offset: [0, -30], closeButton: true })
-            .setHTML(`
-              <div>
-                <strong>${result.poi?.name || "Brak nazwy"}</strong>
-                <p>${result.address.freeformAddress}</p>
-              </div>
-            `);
-
-          marker.setPopup(popup);
-
-          marker.getElement().addEventListener("click", () => {
-            map.flyTo({ center: result.position, zoom: 14 });
-            popup.addTo(map);
-          });
-
-          return marker;
-        });
-        setMarkers(newMarkers);
-
-        if (results.length > 0) {
-          map.flyTo({ center: results[0].position, zoom: 14 });
-        }
-      })
-      .catch((err) => console.error(err));
-  };
-
-  const handleClearSearch = () => {
-    setSearchQuery("");
-    setSearchResults([]);
-
-    markers.forEach((marker) => marker.remove());
-    setMarkers([]);
-  };
-
-  const handleAddressClick = (address) => {
-    services
-      .fuzzySearch({
-        key: API_KEY,
-        query: address.adress,
-      })
-      .then((response) => {
-        const result = response.results[0];
-        if (result) {
-          const position = result.position;
-          map.flyTo({ center: position, zoom: 14 });
-
-          const popup = new tt.Popup({ offset: [0, -30], closeButton: true })
-            .setHTML(`
-              <div>
-                <strong>${address.adress}</strong>
-              </div>
-            `);
-
-          const marker = new tt.Marker().setLngLat(position).addTo(map);
-          marker.setPopup(popup).togglePopup();
-
-          setMarkers((prevMarkers) => {
-            prevMarkers.forEach((marker) => marker.remove());
-            return [marker];
-          });
-        }
-      })
-      .catch((err) => console.error("Error fetching coordinates for address:", err));
-  };
-
   const handleRoute = async () => {
-    if (apiAddresses.length < 2) return; // Potrzebujemy co najmniej 2 punktów do wyznaczenia trasy
+    if (apiAddresses.length < 2) return; 
 
     if (routeLayer) {
-      map.removeLayer(routeLayer);
+      map.removeLayer("route");
+      map.removeSource("route");
       setRouteLayer(null);
     }
 
     try {
-      const coordinatesPromises = apiAddresses.map(async (address) => {
+      const coordinatesPromises = apiAddresses.map(async (address, index) => {    
+        if (index > 0) await new Promise(resolve => setTimeout(resolve, 5000)); 
         const response = await services.fuzzySearch({
           key: API_KEY,
-          query: address.adress,
+          query: `${address.address}, ${address.city}`,
         });
+        console.log("Fuzzy search response:", response);
         const position = response.results[0]?.position;
         if (!position) {
-          throw new Error(`Nie znaleziono współrzędnych dla adresu: ${address.adress}`);
+          throw new Error(`Nie znaleziono współrzędnych dla adresu: ${address.address}`);
         }
+        
         return position;
       });
-
+  
       const coordinates = await Promise.all(coordinatesPromises);
-
+      
+      
+      coordinates.forEach((coord, index) => {
+        if (!coord?.lat || !coord?.lng) {
+          throw new Error(`Niepoprawne współrzędne dla adresu o indeksie ${index}`);
+        }
+      });
+  
       services
         .calculateRoute({
           key: API_KEY,
@@ -164,78 +95,93 @@ function App() {
         })
         .then((response) => {
           const geojson = response.toGeoJson();
-          const routeSource = map.getSource("route");
-
-          if (routeSource) {
-            routeSource.setData(geojson);
-          } else {
-            const newRouteLayer = {
-              id: "route",
-              type: "line",
-              source: {
-                type: "geojson",
-                data: geojson,
-              },
-              paint: {
-                "line-color": "#4a90e2",
-                "line-width": 5,
-              },
-            };
-            map.addLayer(newRouteLayer);
-            setRouteLayer(newRouteLayer);
-          }
-
+          map.addSource("route", {
+            type: "geojson",
+            data: geojson,
+          });
+  
+          map.addLayer({
+            id: "route",
+            type: "line",
+            source: "route",
+            paint: {
+              "line-color": "#4a90e2",
+              "line-width": 5,
+            },
+          });
+          setRouteLayer("route");
+  
           const bounds = new tt.LngLatBounds();
           coordinates.forEach((coord) => bounds.extend(coord));
           map.fitBounds(bounds, { padding: 50 });
         })
-        .catch((err) => console.error("Error calculating route:", err));
+        .catch((err) => console.error("Błąd przy obliczaniu trasy:", err));
     } catch (err) {
-      console.error("Error fetching coordinates:", err);
+      console.error("Błąd przy pozyskiwaniu współrzędnych:", err);
+    }
+  };
+
+  const handleAddAddress = async () => {
+    try {
+      await axios.post("https://localhost:7213/api/Adresses", {
+        address: newAddress,
+        city: newCity,
+        zipCode: newZipCode,
+      });
+      setNewAddress("");
+      setNewCity("");
+      setNewZipCode("");
+      fetchAddresses(); 
+    } catch (error) {
+      console.error("Error adding address:", error);
+    }
+  };
+
+  const handleDeleteAddress = async (id) => {
+    try {
+      await axios.delete("https://localhost:7213/api/Adresses", { params: { id } });
+      fetchAddresses();
+    } catch (error) {
+      console.error("Error deleting address:", error);
     }
   };
 
   return (
     <div className="App">
-      <div className="search-container">
+      <Search map={map} markers={markers} setMarkers={setMarkers} API_KEY={API_KEY} />
+      <div className="mapDiv" ref={mapElement}></div>
+
+      <div className="new-address-container">
         <input
           type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Szukaj lokalizacji..."
-          onKeyDown={(e) => {
-            if (e.key === "Enter") {
-              handleSearch();
-            }
-          }}
+          value={newAddress}
+          onChange={(e) => setNewAddress(e.target.value)}
+          placeholder="Dodaj nowy adres..."
         />
-        <div className="flex space-x-2 w-14">
-          <button onClick={handleSearch} className="w-10 hover:bg-white">
-            <img src="search.svg" alt="" />
-          </button>
-          <button onClick={handleClearSearch} className="w-10 hover:bg-white">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="bi bi-x-square fill-red-600 hover:fill-blue-500"
-              viewBox="0 0 16 16"
-            >
-              <path d="M14 1a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1zM2 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2z" />
-              <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708" />
-            </svg>
-          </button>
-        </div>
+        <input
+          type="text"
+          value={newCity}
+          onChange={(e) => setNewCity(e.target.value)}
+          placeholder="Miasto..."
+        />
+        <input
+          type="text"
+          value={newZipCode}
+          onChange={(e) => setNewZipCode(e.target.value)}
+          placeholder="Kod pocztowy..."
+        />
+        <button onClick={handleAddAddress} className="button">Dodaj</button>
       </div>
-      <div className="mapDiv" ref={mapElement}></div>
+
       <div className="addresses-container">
         <h3>Adresy z API:</h3>
-        {apiAddresses.map((address, index) => (
-          <div key={index} className="result-item" onClick={() => handleAddressClick(address)}>
-            {address.adress}
+        {apiAddresses.map((address) => (
+          <div key={address.id} className="result-item">
+            <span>{address.address}, {address.city} {address.zipCode}</span>
+            <button onClick={() => handleDeleteAddress(address.id)} className="delete-button">Usuń</button>
           </div>
         ))}
-        <button onClick={handleRoute} className="route-button">
-          Trasa
-        </button>
+        <button onClick={handleRoute} className="button">Wyznacz Trasę</button>
       </div>
     </div>
   );

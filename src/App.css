@@ -18,12 +18,24 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.new-address-container {
+  position: absolute;
+  top: 20px;
+  right: 340px; /* Ustawienie po lewej stronie adresów */
+  width: 300px;
+  z-index: 1000;
+  background-color: #fff;
+  padding: 10px;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 .addresses-container {
   position: absolute;
   top: 20px;
-  right: 25px; /* Ustawienie obok search-container */
+  right: 25px; /* Ustawienie po prawej stronie new-address-container */
   width: 300px;
-  z-index: 1000; /* Zapewnia, że adresy są wyżej niż mapa */
+  z-index: 1000;
   background-color: #fff;
   padding: 10px;
   border-radius: 5px;
