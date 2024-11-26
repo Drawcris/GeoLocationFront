@@ -5,6 +5,19 @@
   overflow: hidden; /* Ukryj przewijanie, aby zapobiec przewijaniu strony */
 }
 
+.RoutemapDiv {
+ 
+  margin-left: 25vh;
+  height: 80vh; /* Pełna wysokość widoku */
+  width: 100vh;
+  overflow: hidden; /* Ukryj przewijanie, aby zapobiec przewijaniu strony */
+}
+
+.SearchmapDiv {
+  height: 100vh; /* Pełna wysokość widoku */
+  overflow: hidden; /* Ukryj przewijanie, aby zapobiec przewijaniu strony */
+}
+
 .search-container {
   display: flex;
   position: absolute;
@@ -18,31 +31,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.new-address-container {
-  position: absolute;
-  top: 20px;
-  right: 340px; /* Ustawienie po lewej stronie adresów */
-  width: 300px;
-  z-index: 1000;
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.addresses-container {
-  position: absolute;
-  top: 20px;
-  right: 25px; /* Ustawienie po prawej stronie new-address-container */
-  width: 300px;
-  z-index: 1000;
-  background-color: #fff;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  max-height: 80vh;
-  overflow-y: auto;
-}
 
 .address-item {
   padding: 8px;
@@ -94,18 +82,20 @@ input[type="text"] {
   border-radius: 5px;
 }
 
-button {
+.custom-marker {
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  background-color: #007bff;
+  font-size: 20px;
   color: white;
-  cursor: pointer;
+  background-color: #050203;
+  border-radius: 50%;
+  text-align: center;
 }
 
-button:hover {
-  background-color: #0056b3;
+.custom-marker i {
+  font-size: 18px;
 }
+

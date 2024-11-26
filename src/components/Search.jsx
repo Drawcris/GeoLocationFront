@@ -1,11 +1,40 @@
-// src/components/Search.js
-import { useState } from "react";
+import React, { useState, useEffect, useRef } from "react"; 
 import { services } from "@tomtom-international/web-sdk-services";
 import tt from "@tomtom-international/web-sdk-maps";
+import "@tomtom-international/web-sdk-maps/dist/maps.css";
+import "../App.css";
 
-const Search = ({ map, markers, setMarkers, API_KEY }) => {
+const API_KEY = "A7x2Co2slX6ap1HDQbdUUcG3rJyKYaRA";
+const Zywiec = [19.19243, 49.68529];
+
+
+const Search = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
+  const [map, setMap] = useState(null);
+  const [markers, setMarkers] = useState([]); 
+  const mapElement = useRef();
+  
+
+  useEffect(() => {
+    const initializeMap = () => {
+      const mapInstance = tt.map({
+        key: API_KEY,
+        container: mapElement.current,
+        zoom: 12,
+        center: Zywiec,
+      });
+      setMap(mapInstance);
+    };
+
+    initializeMap();
+
+    return () => {
+      if (map) {
+        map.remove();
+      }
+    };
+  }, []);
 
   // Funkcja do wyszukiwania lokalizacji
   const handleSearch = () => {
@@ -62,7 +91,8 @@ const Search = ({ map, markers, setMarkers, API_KEY }) => {
   };
 
   return (
-    <div className="search-container">
+    <>
+    <div className="search-container mt-20">
       <input
         type="text"
         value={searchQuery}
@@ -74,13 +104,18 @@ const Search = ({ map, markers, setMarkers, API_KEY }) => {
           }
         }}
       />
-      <button onClick={handleSearch} className="button">
-        Szukaj
+      <div className="flex space-x-4">
+      <button onClick={handleSearch}  >
+      <i class="bi bi-search"></i>
       </button>
-      <button onClick={handleClearSearch} className="button">
-        Wyczyść
+      <button onClick={handleClearSearch} >
+      <i class="bi bi-x-square"></i>
       </button>
+      </div>
     </div>
+    <div className="SearchmapDiv" ref={mapElement}></div>
+
+    </>
   );
 };
 
