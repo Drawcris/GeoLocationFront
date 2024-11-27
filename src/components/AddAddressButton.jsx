@@ -38,7 +38,7 @@ function AddAddressButton({ fetchAddresses }) {
     <>
       <Dialog>
         <DialogTrigger className="bg-blue-500 hover:bg-blue-800 text-white" asChild>
-          <Button variant="outline">Dodaj adres <i class="bi bi-plus-circle-fill"></i></Button>
+          <Button variant="outline">Dodaj adres </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">
           <DialogHeader>
@@ -75,7 +75,7 @@ function AddAddressButton({ fetchAddresses }) {
             </div>
           </div>
           <DialogFooter>
-            <Button className="bg-blue-500 hover:bg-blue-800" type="submit" onClick={handleAddAddress}>Dodaj adres  <i class="bi bi-plus-circle-fill"></i></Button>
+            <Button className="bg-blue-500 hover:bg-blue-800" type="submit" onClick={handleAddAddress}>Dodaj adres  <i className="bi bi-plus-circle-fill"></i></Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

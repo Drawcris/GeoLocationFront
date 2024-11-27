@@ -4,6 +4,8 @@ import Home from "./pages/Home";
 import LoginPage from "./pages/LoginPage";
 import SignPage from "./pages/SignPage";
 import SearchPage from "./pages/SearchPage";
+import UsersPage from "./pages/UsersPage";
+
 import "./App.css";
 
 
@@ -16,6 +18,7 @@ function App() {
       <Route path="/" element={<Home />} />
       <Route path="loginpage" element={<LoginPage />} />    
       <Route path="signpage" element={<SignPage />} />  
+      <Route path="userPage" element={<UsersPage />} />
       <Route path="searchpage" element={<SearchPage />} /> 
       </Routes>
     </BrowserRouter>

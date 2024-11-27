@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import tt from "@tomtom-international/web-sdk-maps";
 import { services } from "@tomtom-international/web-sdk-services";
-import axios from "axios";
+import axiosInstance from "../axiosInstance"; // Import axiosInstance
 import "@tomtom-international/web-sdk-maps/dist/maps.css";
 
 import { ScrollArea } from "@/components/ui/scroll-area";  
@@ -29,7 +29,7 @@ function Routing() {
 
   const fetchAddresses = async () => {
     try {
-      const response = await axios.get("https://localhost:7213/api/Adresses");
+      const response = await axiosInstance.get("/api/Adresses");
       setApiAddresses(response.data);
     } catch (error) {
       console.error("Error fetching addresses from API:", error);
@@ -218,7 +218,7 @@ function Routing() {
 
   const handleDeleteAddress = async (id) => {
     try {
-      await axios.delete("https://localhost:7213/api/Adresses", { params: { id } });
+      await axiosInstance.delete("/api/Adresses", { params: { id } });
       fetchAddresses();
     } catch (error) {
       console.error("Error deleting address:", error);
@@ -230,14 +230,15 @@ function Routing() {
     <div className="App">
     <div className="flex space-x-32 ml-20">
         
-      <ScrollArea className="h-2/3 rounded-md border ml-14 mt-14">
+      <ScrollArea className="h-1/1 rounded-md border ml-14 mt-14">
         <div className="p-4">
         <div className=" text-center mb-5 space-x-5">
         <AddAddressButton  fetchAddresses={fetchAddresses} /> 
 
         <DropdownMenu>
-        <DropdownMenuTrigger>
-        <Button className="bg-green-600 hover:bg-green-800 mt-5" type="submit">Wyznacz Trase <i class="bi bi-sign-turn-slight-right-fill"></i></Button>
+        <DropdownMenuTrigger className="bg-green-600 hover:bg-green-800 mt-5 rounded-sm h-10 w-22 text-white">
+        Wyznacz Trase <span className="bi bi-sign-turn-slight-right-fill"></span>
+        
         </DropdownMenuTrigger>
         <DropdownMenuContent>
         <DropdownMenuLabel>Opcje Trasy</DropdownMenuLabel>
@@ -250,13 +251,15 @@ function Routing() {
           {apiAddresses.map((address) => (
             <div key={address.id}>
               <div className="text-sm">
-                <p>{address.address}</p>
-                <p>{address.city}</p>
-                <p>{address.zipCode}</p>
+                <p><b>Adres:</b> {address.address ? address.address : "brak"}</p>
+                <p><b>Miejscowość:</b> {address.city ? address.city : "brak"}</p>
+                <p><b>Kod Pocztowy:</b> {address.zipCode ? address.zipCode : "brak" }</p>
               </div>
+              <div className="text-center">
               <button onClick={() => handleDeleteAddress(address.id)} >
-                <i className="bi bi-trash fill-red-600"></i>
+                <i className="bi bi-trash "></i>
               </button>
+              </div>
               <Separator className="my-2" />
             </div>
           ))}
