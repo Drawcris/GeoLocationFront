@@ -8,6 +8,7 @@ function Navbar() {
 
     const handleLogout = () => {
         setUser(null);
+        localStorage.removeItem('accessToken');
         navigate('/loginpage');
     };
 
