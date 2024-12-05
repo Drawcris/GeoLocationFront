@@ -1,17 +1,93 @@
-import React from 'react'
-import Routing from '../components/Routing'
-import Navbar from '../components/navbar'
-import Footer from '../components/Footer'
+import React from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Link, useLocation } from 'react-router-dom';
+import Navbar from '@/components/Navbar';
 
 function Home() {
-    return (
-        <div>
-            <Navbar />
-            <Routing />
-            <Footer />
+  const location = useLocation();
+  const message = location.state?.message;
+
+  return (
+    <>
+      <Navbar />
+      <div className="container mx-auto p-4 mt-10">
+        {message && <div className="text-red-500 mb-4">{message}</div>}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Link to="/routingPage">
+            <Card className="w-full h-full text-center hover:bg-gray-200 transition duration-300">
+              <CardHeader>
+                <i className="bi bi-sign-turn-right-fill text-4xl mb-2"></i>
+                <CardTitle>Trasa</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Przeglądaj dostępne trasy.</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/profilePage">
+            <Card className="w-full h-full text-center hover:bg-gray-200 transition duration-300">
+              <CardHeader>
+                <i className="bi bi-person-circle text-4xl mb-2"></i>
+                <CardTitle>Profil</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Przeglądaj swój profil.</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/creatorPage">
+            <Card className="w-full h-full text-center hover:bg-gray-200 transition duration-300">
+              <CardHeader>
+                <i className="bi bi-person-fill text-4xl mb-2"></i>
+                <CardTitle>Twórca</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Informacje o twórcy.</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/logout" onClick={() => {
+            localStorage.removeItem('accessToken');
+            window.location.href = '/loginpage';
+          }}>
+            <Card className="w-full h-full text-center hover:bg-gray-200 transition duration-300">
+              <CardHeader>
+                <i className="bi bi-box-arrow-right text-4xl mb-2"></i>
+                <CardTitle>Wyloguj</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Wyloguj się z konta.</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/addRoute">
+            <Card className="w-full h-full text-center hover:bg-gray-200 transition duration-300">
+              <CardHeader>
+                <i className="bi bi-geo-alt-fill text-4xl mb-2"></i>
+                <CardTitle>Dodaj Trasę</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Dodaj nową trasę.</p>
+                <p className='text-red-500'>Tylko dla administratorów</p>
+              </CardContent>
+            </Card>
+          </Link>
+          <Link to="/userPage">
+            <Card className="w-full h-full text-center hover:bg-gray-200 transition duration-300">
+              <CardHeader>
+                <i className="bi bi-people-fill text-4xl mb-2"></i>
+                <CardTitle>Użytkownicy</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>Zarządzaj użytkownikami.</p>
+                <p className='text-red-500'>Tylko dla administratorów</p>
+              </CardContent>
+            </Card>
+          </Link>
         </div>
-    )
+      </div>
+    </>
+  );
 }
-  
-  
-  export default Home
+
+export default Home;

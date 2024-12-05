@@ -4,6 +4,7 @@ import { Dialog, DialogTrigger, DialogContent, DialogFooter, DialogHeader, Dialo
 import { Input } from './ui/input';
 import { Button } from './ui/button';
 import { useAuth } from '@/context/AuthContext'; // Zakładam, że masz kontekst uwierzytelniania
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card';
 
 function ProfileInfo() {
   const { user } = useAuth(); // Pobierz dane zalogowanego użytkownika z kontekstu
@@ -36,7 +37,6 @@ function ProfileInfo() {
     }
   }, [user]);
 
-  // Handle password change
   const handleChangePassword = () => {
     if (newPassword !== confirmPassword) {
       setError("Hasła się nie zgadzają!");
@@ -80,56 +80,61 @@ function ProfileInfo() {
   };
 
   if (!userData) {
-    return <div>Ładowanie...</div>;
+    return <div className="flex justify-center items-center h-screen">Ładowanie...</div>;
   }
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-semibold">Profil</h1> <br />
-      <p>Email: {userData.email}</p>
-      <p>Imię: {userData.fullName}</p> <br />
-      <Button className='bg-blue-500' onClick={() => setOpenDialog(true)}>Zmień hasło</Button>
-      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-        <DialogTrigger />
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Zmień hasło</DialogTitle>
-          </DialogHeader>
-          <Input
-            type="password"
-            placeholder="Aktualne hasło"
-            value={currentPassword}
-            onChange={(e) => setCurrentPassword(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Nowe hasło"
-            value={newPassword}
-            onChange={(e) => setNewPassword(e.target.value)}
-          />
-          <Input
-            type="password"
-            placeholder="Potwierdź nowe hasło"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-          />
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-          <DialogFooter>
-            <Button className='bg-blue-500' onClick={handleChangePassword}>Zmień hasło</Button>
-            <Button className='bg-red-500' onClick={() => setOpenDialog(false)}>Anuluj</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <h2 className="text-xl font-semibold mt-8">Przypisane trasy</h2>
-      <ul className="list-disc list-inside">
-        {routes.map(route => (
-          <li key={route.id}>
-            <p><b>Nazwa trasy:</b> {route.name}</p>
-            <p><b>Status:</b> {route.status}</p>
-            <p><b>Data:</b> {new Date(route.date).toLocaleDateString()}</p>
-          </li>
-        ))}
-      </ul>
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <div className="mb-8 text-2xl">
+        <p>Email: {userData.email}</p>
+        <p>Imię: {userData.fullName}</p>
+      </div>
+
+      <Card className="w-80">
+        <CardHeader>
+        <CardTitle className="text-center">Zmień hasło</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-center">Kliknij poniżej, aby zmienić hasło</p>
+        </CardContent>
+        <CardFooter className="flex justify-center">
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-500">Zmień hasło</Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Zmień hasło</DialogTitle>
+              </DialogHeader>
+              <Input
+                type="password"
+                placeholder="Aktualne hasło"
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="Nowe hasło"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+              />
+              <Input
+                type="password"
+                placeholder="Potwierdź nowe hasło"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+              {error && <p className="text-red-500 text-sm">{error}</p>}
+              <DialogFooter>
+                <Button className="bg-blue-500" onClick={handleChangePassword}>Zmień hasło</Button>
+                <Button className="bg-red-500" onClick={() => setOpenDialog(false)}>Anuluj</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        </CardFooter>
+      </Card>
+
+      
     </div>
   );
 }

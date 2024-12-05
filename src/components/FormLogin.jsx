@@ -1,14 +1,16 @@
 import React, { useState } from 'react';   
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { decodeJwt } from 'jose';  
+import { Link } from 'react-router-dom';
 
 function FormLogin() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
-    const { setUser } = useAuth();  // Zakładając, że używasz kontekstu AuthContext
+    const { setUser } = useAuth();  
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -36,17 +38,17 @@ function FormLogin() {
 
                 if (response.status === 200) {
                     const { token } = response.data;
-                    
-                    // Zapisz token w localStorage
+                
                     localStorage.setItem("accessToken", token);
+                    const decodedToken = decodeJwt(token);
+                    const roles = decodedToken["http://schemas.microsoft.com/ws/2008/06/identity/claims/role"];
 
-                    // Ustaw dane użytkownika w kontekście, np. email użytkownika
-                    const user = { email, token };  // Przechowuj tylko email i token
-                    setUser(user);  // Zakładając, że używasz kontekstu AuthContext
+                    const user = { email, token, roles: Array.isArray(roles) ? roles : [roles] };  
+                    setUser(user);  
                     
                     setError("");
-                    console.log(token);
-                    navigate("/userPage");  // Przekierowanie po pomyślnym zalogowaniu
+                    console.log(user);
+                    navigate("/");  
                 }
             } catch (error) {
                 console.error("Błąd logowania:", error);

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from "react";
+import React, { useRef, useEffect, useState } from "react"; 
 import tt from "@tomtom-international/web-sdk-maps";
 import { services } from "@tomtom-international/web-sdk-services";
 import axiosInstance from "../axiosInstance"; 
@@ -9,11 +9,9 @@ import { Button } from "@/components/ui/button";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Select, SelectTrigger, SelectContent, SelectItem, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogTrigger, DialogContent, DialogFooter, DialogHeader } from '@/components/ui/dialog';
-import AddAddressButton from "./AddAddressButton";  
 import { useAuth } from '../context/AuthContext';
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
-import { handleRouteFast, handleRouteInOrder } from '../TypeofRoutings';
 
 const API_KEY = "A7x2Co2slX6ap1HDQbdUUcG3rJyKYaRA";
 const Zywiec = [19.19243, 49.68529];
@@ -27,7 +25,7 @@ function Routing() {
   const [routeLayer, setRouteLayer] = useState(null);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
-  const [routeInfo, setRouteInfo] = useState(null);
+  const [routeDistance, setRouteDistance] = useState(null); // Nowy stan na długość trasy
 
   const fetchRoutes = async () => {
     try {
@@ -90,6 +88,75 @@ function Routing() {
     setMarkers((prevMarkers) => [...prevMarkers, marker]);
   };
 
+  const handleRoute = async (computeBestOrder) => {
+    if (!selectedRoute || !selectedRoute.locations || selectedRoute.locations.length < 2) {
+      console.error("Brak wystarczających danych do wyznaczenia trasy.");
+      return;
+    }
+
+    if (routeLayer) {
+      map.removeLayer("route");
+      map.removeSource("route");
+      setRouteLayer(null);
+    }
+
+    markers.forEach((marker) => marker.remove());
+    setMarkers([]);
+    setRouteDistance(null); // Resetuj poprzednią wartość długości trasy
+
+    try {
+      const coordinatesPromises = selectedRoute.locations.map(async (location, index) => {
+        if (index > 0) await new Promise((resolve) => setTimeout(resolve, 1000));
+        const response = await services.fuzzySearch({
+          key: API_KEY,
+          query: `${location.address}, ${location.city}`,
+        });
+        const position = response.results[0]?.position;
+        if (!position) {
+          throw new Error(`Nie znaleziono współrzędnych dla adresu: ${location.address}`);
+        }
+
+        createMarker(position, index, location, selectedRoute.locations.length);
+        return position;
+      });
+
+      const coordinates = await Promise.all(coordinatesPromises);
+
+      const routeResponse = await services.calculateRoute({
+        key: API_KEY,
+        locations: coordinates.map((coord) => `${coord.lng},${coord.lat}`),
+        computeBestOrder,
+        routeType: "fastest",
+      });
+
+      const geojson = routeResponse.toGeoJson();
+      const distance = routeResponse.routes[0].summary.lengthInMeters; // Pobranie długości trasy w metrach
+      setRouteDistance((distance / 1000).toFixed(2)); // Przelicz na kilometry i zaokrąglij do 2 miejsc
+
+      map.addSource("route", {
+        type: "geojson",
+        data: geojson,
+      });
+
+      map.addLayer({
+        id: "route",
+        type: "line",
+        source: "route",
+        paint: {
+          "line-color": "#4a90e2",
+          "line-width": 5,
+        },
+      });
+      setRouteLayer("route");
+
+      const bounds = new tt.LngLatBounds();
+      coordinates.forEach((coord) => bounds.extend(coord));
+      map.fitBounds(bounds, { padding: 50 });
+    } catch (err) {
+      console.error("Błąd przy obliczaniu trasy:", err);
+    }
+  };
+
   const handleCompleteRoute = async () => {
     if (!selectedRoute) return;
 
@@ -115,14 +182,13 @@ function Routing() {
                   <DropdownMenuContent>
                     <DropdownMenuLabel>Opcje Trasy</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleRouteFast(selectedRoute, map, routeLayer, setRouteLayer, markers, setMarkers, API_KEY, createMarker)}>Szybka</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleRouteInOrder(selectedRoute, map, routeLayer, setRouteLayer, markers, setMarkers, API_KEY, createMarker)}>Po kolei</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRoute(true)}>Szybka</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleRoute(false)}>Po kolei</DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
               <Select onValueChange={(value) => {
                 const route = routes.find((route) => route.id.toString() === value);
-                console.log("Selected route:", route); 
                 setSelectedRoute(route);
               }}>
                 <SelectTrigger className="mb-4">
@@ -144,12 +210,17 @@ function Routing() {
                     <p><b>Status: </b>{selectedRoute.status}</p><br />
                     {selectedRoute.locations.map((location, index) => (
                       <div key={index} className="mb-4">
-                        <p><b>Adres:</b> {location.address ? location.address : "brak"}</p>
-                        <p><b>Miejscowość:</b> {location.city ? location.city : "brak"}</p>
-                        <p><b>Kod Pocztowy:</b> {location.zipCode ? location.zipCode : "brak"}</p>
+                        <p><b>Adres:</b> {location.address || "brak"}</p>
+                        <p><b>Miejscowość:</b> {location.city || "brak"}</p>
+                        <p><b>Kod Pocztowy:</b> {location.zipCode || "brak"}</p>
                       </div>
                     ))}
                   </div>
+                  {routeDistance && (
+                    <div className="text-center mt-4">
+                      <p><b>Długość trasy:</b> {routeDistance} km</p>
+                    </div>
+                  )}
                   <div className="text-center">
                     <Button className="bg-green-700" onClick={() => setIsCompleteDialogOpen(true)}>
                       Oznacz jako ukończoną

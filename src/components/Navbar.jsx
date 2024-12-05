@@ -16,13 +16,16 @@ function Navbar() {
         <div>
             <nav className="flex items-center justify-between flex-wrap bg-blue-500 p-6">
                 <div className="flex items-center flex-shrink-0 text-white mr-6">
-                    <span className="font-semibold text-xl tracking-tight">Panda Express</span>
+                    <a href="/">
+                <img src="/panda.jpg" alt="Panda Logo" className="h-10 w-10 mr-2 rounded-md" />
+                </a>
+                <span className="font-semibold text-xl tracking-tight">Panda Express</span>
                 </div>
                 <div className="block lg:hidden">             
                 </div>
                 <div className="w-full block flex-grow lg:flex lg:items-center lg:w-auto">
                     <div className="text-sm lg:flex-grow">
-                        <a href="/" className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                        <a href="/routingPage" className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
                             Trasa
                             <i className="ml-1 bi bi-sign-turn-right-fill"></i>
                         </a>
