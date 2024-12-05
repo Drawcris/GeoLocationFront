@@ -24,23 +24,33 @@ function Navbar() {
                     <div className="text-sm lg:flex-grow">
                         <a href="/" className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
                             Trasa
+                            <i className="ml-1 bi bi-sign-turn-right-fill"></i>
                         </a>
-                        <a href="/searchpage" className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
-                            Wyszukiwarka
+                        <a href="/addRoute" className="space-x-2 block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                            Dodaj trasę
+                            <i className="bi bi-geo-alt-fill"></i>
                         </a>
-                        <a href="/userPage" className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                        
+                        <a href="/userPage" className="space-x-2block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
                             Użytkownicy
+                            <i className="ml-1 bi bi-people-fill"></i>
                         </a>
-                        <a href="#responsive-header" className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white">
+                        
+                        <a href="/creatorPage" className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white">
                             Twórca
                         </a>
                     </div>
                     <div>
+                    <a href="/searchpage" className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                            Wyszukiwarka
+                            <i className="ml-1 bi bi-search"></i>
+                        </a>
                         {user ? (
-                            <>
+                            <> <a href="/profilePage">
                                 <span className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white mt-4 lg:mt-0">
                                    {user.email}
                                 </span>
+                                </a>
                                 <button
                                     onClick={handleLogout}
                                     className="inline-block text-sm px-4 py-2 leading-none border rounded text-white border-white hover:border-transparent hover:text-black hover:bg-red-600 mt-4 lg:mt-0 ml-4"
