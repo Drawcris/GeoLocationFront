@@ -98,6 +98,7 @@ function RouteList() {
           </VisuallyHidden>
           <DialogHeader>
             <h3 className="text-lg font-semibold">Dodaj Trasę</h3>
+            <p className='text-sm text-red-500'>Dodawaj adresy w kolejności, w której powinny zostać odwiedzone</p>
           </DialogHeader>
           <ScrollArea className="max-h-96">
             <div className="space-y-4">

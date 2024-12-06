@@ -25,7 +25,8 @@ function Routing() {
   const [routeLayer, setRouteLayer] = useState(null);
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [isCompleteDialogOpen, setIsCompleteDialogOpen] = useState(false);
-  const [routeDistance, setRouteDistance] = useState(null); // Nowy stan na długość trasy
+  const [routeDistance, setRouteDistance] = useState(null);
+  const [orderedLocations, setOrderedLocations] = useState([]); // Przechowuj adresy w odpowiedniej kolejności
 
   const fetchRoutes = async () => {
     try {
@@ -117,10 +118,13 @@ function Routing() {
         }
 
         createMarker(position, index, location, selectedRoute.locations.length);
-        return position;
+        return { position, location };
       });
 
-      const coordinates = await Promise.all(coordinatesPromises);
+      const results = await Promise.all(coordinatesPromises);
+      const coordinates = results.map(result => result.position);
+      const orderedLocations = results.map(result => result.location);
+      setOrderedLocations(orderedLocations);
 
       const routeResponse = await services.calculateRoute({
         key: API_KEY,
@@ -157,6 +161,8 @@ function Routing() {
     }
   };
 
+  
+
   const handleCompleteRoute = async () => {
     if (!selectedRoute) return;
 
@@ -166,6 +172,18 @@ function Routing() {
     } finally {
       alert('Trasa została oznaczona jako ukończona');
     }
+  };
+
+  const openInGoogleMaps = () => {
+    if (!orderedLocations || orderedLocations.length === 0) return;
+
+    const baseUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
+    const origin = `${orderedLocations[0].address}, ${orderedLocations[0].city}`;
+    const destination = `${orderedLocations[orderedLocations.length - 1].address}, ${orderedLocations[orderedLocations.length - 1].city}`;
+    const waypoints = orderedLocations.slice(1, -1).map(location => `${location.address}, ${location.city}`).join('|');
+    const url = `${baseUrl}&origin=${origin}&destination=${destination}&waypoints=${waypoints}`;
+
+    window.open(url, '_blank');
   };
 
   return (
@@ -244,12 +262,19 @@ function Routing() {
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
+                    <div className="mt-2">
+                      <Button className="bg-blue-500" onClick={openInGoogleMaps}>
+                        Otwórz w Google Maps
+                        <i className="bi bi-google"></i>
+                      </Button>
+                    </div>
                   </div>
                   <Separator className="my-2" />
                 </div>
               )}
             </div>
           </ScrollArea>
+          
           <div className="w-1/2 rounded-lg mt-10 RoutemapDiv" ref={mapElement}></div>
         </div>
       </div>

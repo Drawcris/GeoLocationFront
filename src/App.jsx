@@ -10,6 +10,7 @@ import AddRoute from "./pages/AddRoute";
 import ProfilePage from "./pages/ProfilePage";
 import CreatorPage from "./pages/CreatorPage";
 import RoutingPage from "./pages/RoutingPage";
+import GoogleRoutingPage from "./pages/GoogleRoutingPage";
 import Home from "./pages/Home";
 
 import "./App.css";
@@ -39,6 +40,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route path="googleRoutingPage" element={<GoogleRoutingPage />} />
           <Route path="profilePage" element={<ProfilePage />} />
           <Route path="creatorPage" element={<CreatorPage />} />
           <Route path="routingPage" element={<RoutingPage />} />

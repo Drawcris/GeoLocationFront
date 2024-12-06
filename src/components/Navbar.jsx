@@ -29,6 +29,10 @@ function Navbar() {
                             Trasa
                             <i className="ml-1 bi bi-sign-turn-right-fill"></i>
                         </a>
+                        <a href="/googleRoutingPage" className="block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
+                            Trasa Google
+                            <i className="ml-1 bi bi-sign-turn-right-fill"></i>
+                        </a>
                         <a href="/addRoute" className="space-x-2 block mt-4 lg:inline-block lg:mt-0 text-teal-200 hover:text-white mr-4">
                             Dodaj trasę
                             <i className="bi bi-geo-alt-fill"></i>
