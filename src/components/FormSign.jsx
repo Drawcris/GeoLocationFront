@@ -1,124 +1,133 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 function FormSign() {
-    const [email, setEmail] = useState("");
-    const [fullName, setFullName] = useState("");
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    const [error, setError] = useState("");
-    const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [phonenumber, setPhoneNumber] = useState("");
 
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        if (name === "email") {
-            setEmail(value);
-        } else if (name === "password") {
-            setPassword(value);
-        } else if (name === "confirmPassword") {
-            setConfirmPassword(value);
-        } else if (name === "fullName") {
-            setFullName(value);
+  const [error, setError] = useState("");
+  const navigate = useNavigate();
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "email") {
+      setEmail(value);
+    } else if (name === "password") {
+      setPassword(value);
+    } else if (name === "fullName") {
+      setFullName(value);
+    } else if (name === "phonenumber") {
+      setPhoneNumber(value);
+    }
+  }; // Properly closed the function
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!email || !password || !fullName || !phonenumber) {
+      setError("Wszystkie pola są wymagane");
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setError("Niepoprawny email");
+    } else {
+      setError("");
+      try {
+        const response = await axios.post("https://localhost:7213/api/account/register", {
+          email,
+          password,
+          fullName,
+          phonenumber,
+        });
+
+        if (response.status === 200) {
+          setError("");
+          navigate("/loginpage");
         }
-    };
+      } catch (error) {
+        setError("Rejestracja nie powiodła się");
+      }
+    }
+  };
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-
-        if (!email || !password || !confirmPassword || !fullName) {
-            setError("Wszystkie pola są wymagane");
-        } else if (!/\S+@\S+\.\S+/.test(email)) {
-            setError("Niepoprawny email");
-        } else if (password.length < 8) {
-            setError("Hasło musi mieć co najmniej 8 znaków");
-        } else if (password !== confirmPassword) {
-            setError("Hasła nie są takie same");
-        } else {
-            setError("");
-            try {
-                const response = await axios.post("https://localhost:7213/api/Account/register", {
-                    email,
-                    password,
-                    fullName
-                });
-
-                if (response.status === 200) {
-                    setError("Rejestracja zakończona sukcesem");
-                    navigate("/LoginPage");  // Przeniesienie na stronę logowania
-                } else {
-                    setError("Błąd podczas rejestracji");
-                }
-            } catch (error) {
-                console.error("Błąd rejestracji:", error);
-                setError("Błąd podczas rejestracji");
-            }
-        }
-    };
-
-    return (
-        <div className="flex flex-col justify-center items-center">
-            <p className='font-medium mt-20'>Panda Express</p>
-            <img className="object-center inline w-40 h-40 border rounded-xl" src="panda.jpg" alt="Witaj" />
-
-            <h1 className="text-5xl mt-5">Utwórz konto</h1>
-            <p className="mt-4">Podaj email oraz hasło aby utworzyć konto</p>
-
-            <form className="mt-10" onSubmit={handleSubmit}>
-                <input
-                    type="fname"
-                    name="fullName"
-                    placeholder="Imię i nazwisko"
-                    value={fullName}
-                    onChange={handleChange}
-                    className="input bg-slate-300 rounded-xl  text-center h-10 w-80 mt-4"
-                />
-                <p className="text-slate-600">Podaj swoje imię i nazwisko</p>
-
-                <input
-                    type="email"
-                    name="email"
-                    placeholder="Imie@example.com"
-                    value={email}
-                    onChange={handleChange}
-                    className="input bg-slate-300 rounded-xl text-center h-10 w-80 mt-4"
-                />
-                <p className="text-slate-600">Podaj swój email</p>
-
-                <input
-                    type="password"
-                    name="password"
-                    placeholder="ExamplePassword"
-                    value={password}
-                    onChange={handleChange}
-                    className="input bg-slate-300 rounded-xl text-center h-10 w-80 mt-4"
-                />
-                <p className="text-slate-600">Podaj swoje hasło</p>
-
-                <input
-                    type="password"
-                    name="confirmPassword"
-                    placeholder="Powtórz hasło"
-                    value={confirmPassword}
-                    onChange={handleChange}
-                    className="input bg-slate-300 rounded-xl text-center h-10 w-80 mt-4"
-                />
-                <p className="text-slate-600">Powtórz swoje hasło</p>
-
-                {error && <p className="text-red-500 mt-2">{error}</p>}
-
-                <button type="submit" className="btn mt-5 bg-blue-500 rounded-xl w-80 h-10 text-white">
-                    Utwórz konto
-                </button>
-            </form>
-
-            <p className="mt-4">Masz już konto?</p>
-
-            <Link to="/LoginPage" className="text-blue-500">
-                <button className="btn mt-5 bg-blue-500 rounded-xl w-40 h-10 text-white">Zaloguj się</button>
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <Card className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
+        <CardHeader>
+          <CardTitle className="text-center text-2xl font-bold">Rejestracja</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit}>
+            <div className="mb-4">
+              <Label htmlFor="fullName">Imię i nazwisko</Label>
+              <Input
+                type="text"
+                name="fullName"
+                value={fullName}
+                onChange={handleChange}
+                placeholder="Wprowadź imię i nazwisko"
+                className="mt-1 block w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                type="email"
+                name="email"
+                value={email}
+                onChange={handleChange}
+                placeholder="Wprowadź email"
+                className="mt-1 block w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="phonenumber">Numer Telefonu</Label> {/* Corrected name */}
+              <Input
+                type="tel"
+                name="phonenumber" // Corrected name
+                value={phonenumber}
+                onChange={handleChange}
+                placeholder="Wprowadź Numer Telefonu"
+                className="mt-1 block w-full"
+              />
+            </div>
+            <div className="mb-4">
+              <Label htmlFor="password">Hasło</Label>
+              <Input
+                type="password"
+                name="password"
+                value={password}
+                onChange={handleChange}
+                placeholder="Wprowadź hasło"
+                className="mt-1 block w-full"
+              />
+            </div>
+            {error && <p className="text-red-500 text-sm mb-4">{error}</p>}
+            <Button
+              type="submit"
+              className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            >
+              Zarejestruj się
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="text-center">
+          <p>
+            Masz już konto?{" "}
+            <Link to="/loginpage" className="text-blue-500 hover:underline">
+              Zaloguj się
             </Link>
-        </div>
-    );
+          </p>
+        </CardFooter>
+      </Card>
+    </div>
+  );
 }
 
 export default FormSign;

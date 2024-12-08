@@ -6,9 +6,7 @@ import Footer from '../components/Footer'
 function RoutingPage() {
     return (
         <div>
-            <Navbar />
             <Routing />
-            <Footer />
         </div>
     )
 }

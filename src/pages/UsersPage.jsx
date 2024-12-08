@@ -6,7 +6,6 @@ function UsersPage() {
 
   return (
     <>
-      <Navbar />
       <UserList />      
     </>
   )

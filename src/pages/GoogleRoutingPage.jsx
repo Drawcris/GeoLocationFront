@@ -4,10 +4,10 @@ import Navbar from '../components/navbar'
 import Footer from '../components/Footer'
 import GoogleRouting from '../components/GoogleRouting'
 
+
 function GoogleRoutingPage() {
     return (
         <div>
-            <Navbar />
             <GoogleRouting />
             <Footer />
         </div>

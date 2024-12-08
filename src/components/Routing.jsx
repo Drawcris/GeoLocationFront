@@ -175,26 +175,29 @@ function Routing() {
   };
 
   const openInGoogleMaps = () => {
-    if (!orderedLocations || orderedLocations.length === 0) return;
-
+    if (!selectedRoute || !selectedRoute.locations || selectedRoute.locations.length === 0) {
+      alert("Brak wystarczających danych do otwarcia trasy w Google Maps.");
+      return;
+    }
+  
     const baseUrl = 'https://www.google.com/maps/dir/?api=1&travelmode=driving';
-    const origin = `${orderedLocations[0].address}, ${orderedLocations[0].city}`;
-    const destination = `${orderedLocations[orderedLocations.length - 1].address}, ${orderedLocations[orderedLocations.length - 1].city}`;
-    const waypoints = orderedLocations.slice(1, -1).map(location => `${location.address}, ${location.city}`).join('|');
-    const url = `${baseUrl}&origin=${origin}&destination=${destination}&waypoints=${waypoints}`;
-
+    const origin = `${selectedRoute.locations[0].address}, ${selectedRoute.locations[0].city}`;
+    const destination = `${selectedRoute.locations[selectedRoute.locations.length - 1].address}, ${selectedRoute.locations[selectedRoute.locations.length - 1].city}`;
+    const waypoints = selectedRoute.locations.slice(1, -1).map(location => `${location.address}, ${location.city}`).join('|');
+  
+    const url = `${baseUrl}&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(destination)}&waypoints=${encodeURIComponent(waypoints)}`;
     window.open(url, '_blank');
   };
-
   return (
     <>
       <div className="App">
-        <div className="flex space-x-32 ml-20">
-          <ScrollArea className="h-1/1 w-1/6 rounded-md border ml-14 mt-14">
+      <div className="min-h-screen bg-gray-100 ">
+        <div className="flex space-x-24 ml-20">
+          <ScrollArea className="h-1/1 w-1/5 rounded-md bg-white border ml-14 mt-14">
             <div className="p-4">
               <div className=" text-center mb-5 space-x-5">
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="bg-green-600 hover:bg-green-800 mt-5 rounded-sm h-10 w-60 text-white">
+                  <DropdownMenuTrigger className="bg-blue-600 hover:bg-green-800 mt-5 rounded-sm h-10 w-60 text-white">
                     Wyznacz Trase <span className="bi bi-sign-turn-slight-right-fill"></span>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent>
@@ -202,6 +205,9 @@ function Routing() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => handleRoute(true)}>Szybka</DropdownMenuItem>
                     <DropdownMenuItem onClick={() => handleRoute(false)}>Po kolei</DropdownMenuItem>
+                    <DropdownMenuItem className="bg-green-500 hover:bg-green-300" onClick={() => openInGoogleMaps()}>Otwórz w Google Maps
+                      <i className="bi bi-google"></i>
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </div>
@@ -240,7 +246,7 @@ function Routing() {
                     </div>
                   )}
                   <div className="text-center">
-                    <Button className="bg-green-700" onClick={() => setIsCompleteDialogOpen(true)}>
+                    <Button className="bg-blue-700" onClick={() => setIsCompleteDialogOpen(true)}>
                       Oznacz jako ukończoną
                     </Button>
                     <Dialog open={isCompleteDialogOpen} onOpenChange={setIsCompleteDialogOpen}>
@@ -262,12 +268,7 @@ function Routing() {
                         </DialogFooter>
                       </DialogContent>
                     </Dialog>
-                    <div className="mt-2">
-                      <Button className="bg-blue-500" onClick={openInGoogleMaps}>
-                        Otwórz w Google Maps
-                        <i className="bi bi-google"></i>
-                      </Button>
-                    </div>
+                    
                   </div>
                   <Separator className="my-2" />
                 </div>
@@ -275,9 +276,10 @@ function Routing() {
             </div>
           </ScrollArea>
           
-          <div className="w-1/2 rounded-lg mt-10 RoutemapDiv" ref={mapElement}></div>
+          <div className="w-2/3 rounded-lg mt-10 RoutemapDiv" ref={mapElement}></div>
         </div>
       </div>
+    </div>
     </>
   );
 }

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import axiosInstance from '@/axiosInstance'; // Upewnij się, że importujesz axiosInstance
-import { Dialog, DialogTrigger, DialogContent, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { useAuth } from '@/context/AuthContext'; // Zakładam, że masz kontekst uwierzytelniania
-import { Card, CardHeader, CardTitle, CardContent, CardFooter } from './ui/card';
+import axiosInstance from '@/axiosInstance'; 
+import { Dialog, DialogTrigger, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/context/AuthContext'; 
+import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 
 function ProfileInfo() {
-  const { user } = useAuth(); // Pobierz dane zalogowanego użytkownika z kontekstu
+  const { user } = useAuth(); 
   const [userData, setUserData] = useState(null);
   const [openDialog, setOpenDialog] = useState(false);
   const [currentPassword, setCurrentPassword] = useState('');
@@ -16,7 +16,6 @@ function ProfileInfo() {
   const [error, setError] = useState('');
   const [routes, setRoutes] = useState([]);
 
-  // Fetch user data
   useEffect(() => {
     if (user && user.email) {
       axiosInstance.get(`/api/Account/users/email/${encodeURIComponent(user.email)}`)
@@ -48,34 +47,15 @@ function ProfileInfo() {
       newPassword
     };
 
-    console.log('Payload:', payload);
-
-    if (!userData || !userData.id) {
-      console.error('User ID is undefined');
-      setError('Nie można zmienić hasła, ponieważ ID użytkownika jest nieznane.');
-      return;
-    }
-
-    axiosInstance.put(`/api/Account/users/${userData.id}/password`, payload)
-      .then(response => {
-        alert("Hasło zostało zmienione!");
-        setOpenDialog(false);
+    axiosInstance.put(`/api/Account/users/change-password`, payload)
+      .then(() => {
         setError('');
+        setOpenDialog(false);
+        alert('Hasło zostało zmienione');
       })
       .catch(error => {
         console.error('Error changing password:', error);
-        if (error.response) {
-          console.error('Response data:', error.response.data);
-          console.error('Response status:', error.response.status);
-          console.error('Response headers:', error.response.headers);
-          if (error.response.status === 400) {
-            setError("Błędne hasło.");
-          } else {
-            setError("Błąd podczas zmiany hasła.");
-          }
-        } else {
-          setError("Błąd podczas zmiany hasła.");
-        }
+        setError('Błąd podczas zmiany hasła');
       });
   };
 
@@ -84,57 +64,61 @@ function ProfileInfo() {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <div className="mb-8 text-2xl">
-        <p>Email: {userData.email}</p>
-        <p>Imię: {userData.fullName}</p>
-      </div>
-
-      <Card className="w-80">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <Card className="w-full max-w-md p-6 bg-white rounded-lg shadow-md">
         <CardHeader>
-        <CardTitle className="text-center">Zmień hasło</CardTitle>
+          <CardTitle className="text-center text-2xl font-bold">Profil użytkownika</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-center">Kliknij poniżej, aby zmienić hasło</p>
+          <div className="mb-4">
+            <p><strong>Email:</strong> {userData.email}</p>
+            <p><strong>Imię:</strong> {userData.fullName}</p>
+          </div>
+          <Button className="w-full bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={() => setOpenDialog(true)}>
+            Zmień hasło
+          </Button>
         </CardContent>
-        <CardFooter className="flex justify-center">
-          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
-            <DialogTrigger asChild>
-              <Button className="bg-blue-500">Zmień hasło</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Zmień hasło</DialogTitle>
-              </DialogHeader>
-              <Input
-                type="password"
-                placeholder="Aktualne hasło"
-                value={currentPassword}
-                onChange={(e) => setCurrentPassword(e.target.value)}
-              />
-              <Input
-                type="password"
-                placeholder="Nowe hasło"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-              <Input
-                type="password"
-                placeholder="Potwierdź nowe hasło"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-              />
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-              <DialogFooter>
-                <Button className="bg-blue-500" onClick={handleChangePassword}>Zmień hasło</Button>
-                <Button className="bg-red-500" onClick={() => setOpenDialog(false)}>Anuluj</Button>
-              </DialogFooter>
-            </DialogContent>
-          </Dialog>
-        </CardFooter>
       </Card>
 
-      
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Zmień hasło</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <Input
+              type="password"
+              placeholder="Aktualne hasło"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              className="w-full"
+            />
+            <Input
+              type="password"
+              placeholder="Nowe hasło"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              className="w-full"
+            />
+            <Input
+              type="password"
+              placeholder="Potwierdź nowe hasło"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              className="w-full"
+            />
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setOpenDialog(false)}>
+              Anuluj
+            </Button>
+            <Button className="bg-blue-500" onClick={handleChangePassword}>
+              Zmień hasło
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

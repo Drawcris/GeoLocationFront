@@ -120,7 +120,7 @@ function GoogleRouting() {
     <LoadScript googleMapsApiKey={API_KEY}>
       <div className="App">
         <div className="flex space-x-32 ml-20">
-          <ScrollArea className="h-1/1 w-1/6 rounded-md border ml-14 mt-8">
+          <ScrollArea className="h-1/1 w-1/5 rounded-md border ml-14 mt-8">
             <div className="p-4">
               <div className=" text-center mb-5 space-x-5">
                 <DropdownMenu>

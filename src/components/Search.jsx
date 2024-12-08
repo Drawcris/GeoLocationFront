@@ -9,20 +9,19 @@ const Zywiec = [19.19243, 49.68529];
 
 
 const Search = () => {
+  const mapElement = useRef();
+  const [map, setMap] = useState(null);
+  const [markers, setMarkers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState([]);
-  const [map, setMap] = useState(null);
-  const [markers, setMarkers] = useState([]); 
-  const mapElement = useRef();
-  
 
   useEffect(() => {
     const initializeMap = () => {
       const mapInstance = tt.map({
         key: API_KEY,
         container: mapElement.current,
+        center: [19.945, 50.0647], // Przykładowe współrzędne
         zoom: 12,
-        center: Zywiec,
       });
       setMap(mapInstance);
     };
@@ -36,7 +35,6 @@ const Search = () => {
     };
   }, []);
 
-  // Funkcja do wyszukiwania lokalizacji
   const handleSearch = () => {
     if (!searchQuery) return;
 
@@ -65,11 +63,6 @@ const Search = () => {
             `);
 
           marker.setPopup(popup);
-          marker.getElement().addEventListener("click", () => {
-            map.flyTo({ center: result.position, zoom: 14 });
-            popup.addTo(map);
-          });
-
           return marker;
         });
         setMarkers(newMarkers);
@@ -92,29 +85,31 @@ const Search = () => {
 
   return (
     <>
-    <div className="search-container mt-20">
-      <input
-        type="text"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        placeholder="Szukaj lokalizacji..."
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            handleSearch();
-          }
-        }}
-      />
-      <div className="flex space-x-4">
-      <button onClick={handleSearch}  >
-      <i class="bi bi-search"></i>
-      </button>
-      <button onClick={handleClearSearch} >
-      <i class="bi bi-x-square"></i>
-      </button>
+      <div className="relative h-full">
+        <div className="absolute top-4 left-4 z-10 bg-white p-4 rounded shadow-md flex">
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Szukaj lokalizacji..."
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                handleSearch();
+              }
+            }}
+            className="p-2 border rounded w-64"
+          />
+          <div className="flex space-x-4 mt-2">
+            <button onClick={handleSearch} className="p-2 bg-blue-500 text-white rounded">
+              <i className="bi bi-search"></i>
+            </button>
+            <button onClick={handleClearSearch} className="p-2 bg-red-500 text-white rounded">
+              <i className="bi bi-x-square"></i>
+            </button>
+          </div>
+        </div>
+        <div className="SearchmapDiv h-full" ref={mapElement}></div>
       </div>
-    </div>
-    <div className="SearchmapDiv" ref={mapElement}></div>
-
     </>
   );
 };

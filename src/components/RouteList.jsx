@@ -85,6 +85,7 @@ function RouteList() {
   };
 
   return (
+    <div className="min-h-screen bg-gray-100 ">
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-semibold mb-4">Trasy</h2>
 
@@ -129,7 +130,7 @@ function RouteList() {
                 />
               </div>
               {newLocations.map((location, index) => (
-                <div key={index} className="space-y-2">
+                <div key={index} className="space-y-1">
                   <Input
                     type="text"
                     value={location.address}
@@ -207,9 +208,6 @@ function RouteList() {
                       </div>
                     </ScrollArea>
                     <DialogFooter>
-                      <Button variant="outline" onClick={() => setSelectedRoute(null)}>
-                        Zamknij
-                      </Button>
                     </DialogFooter>
                   </DialogContent>
                 </Dialog>
@@ -223,6 +221,7 @@ function RouteList() {
           ))}
         </TableBody>
       </Table>
+    </div>
     </div>
   );
 }

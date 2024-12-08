@@ -5,9 +5,7 @@ import Navbar from "../components/navbar";
 function SearchPage() {
     return (
         <>
-            <Navbar />
             <Search />
-
         </>
     )
 }

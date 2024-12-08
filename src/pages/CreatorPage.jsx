@@ -1,5 +1,4 @@
 import React from 'react';
-import Navbar from "@/components/Navbar";
 import { FaGithub, FaLinkedin, FaReact, FaDatabase, FaBootstrap, FaMicrosoft, } from 'react-icons/fa';
 import { SiTailwindcss, SiDotnet, SiVite, SiPostman, SiJavascript } from 'react-icons/si';
 import { TbBrandCSharp } from "react-icons/tb";
@@ -9,7 +8,7 @@ import { VscCode } from 'react-icons/vsc';
 function CreatorPage() {
   return (
     <>
-      <Navbar />
+      <div className="min-h-screen bg-gray-100 ">
       <div className="container mx-auto p-8">
         <div className="bg-white shadow-md rounded-lg p-6">
           <h1 className="text-3xl font-bold mb-4">O twórcy</h1>
@@ -43,8 +42,8 @@ function CreatorPage() {
               <span>Tailwind CSS</span>
             </li>
             <li className="flex items-center space-x-2">
-              <SiTailwindcss size={24} className="text-teal-500" />
-              <span>shadcn/ui</span>
+            <img src="/shadcnui.png" alt="TomTom API" className="w-6 h-6" />
+            <span>shadcnui</span>
             </li>           
             <li className="flex items-center space-x-2">
               <FaDatabase size={24} className="text-gray-700" />
@@ -98,6 +97,7 @@ function CreatorPage() {
           </ul>
         </div>
       </div>
+    </div>
     </>
   );
 }
